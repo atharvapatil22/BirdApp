@@ -1,3 +1,4 @@
+import "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Image } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -5,6 +6,8 @@ import { NavigationContainer } from "@react-navigation/native";
 import Home from "./Screens/Home";
 import Catalogue from "./Screens/Catalogue";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import CatalogueNav from "./Navigation/CatalogueNav";
+import "react-native-gesture-handler";
 
 const BottomTab = createBottomTabNavigator();
 
@@ -27,14 +30,14 @@ export default function App() {
           //   ),
           // }}
           initialRouteName="Home"
-          tabBarOptions={{
-            labelStyle: {
-              fontFamily: "TrebuchetMS",
-              fontWeight: "bold",
-            },
-            activeTintColor: "black",
-            inactiveTintColor: "#9E9E9E",
-          }}
+          // tabBarOptions={{
+          //   labelStyle: {
+          //     // fontFamily: "TrebuchetMS",
+          //     fontWeight: "bold",
+          //   },
+          //   activeTintColor: "black",
+          //   inactiveTintColor: "#9E9E9E",
+          // }}
         >
           <BottomTab.Screen
             name="Home"
@@ -53,7 +56,7 @@ export default function App() {
           />
           <BottomTab.Screen
             name="Catalogue"
-            component={Catalogue}
+            component={CatalogueNav}
             // children={(data) => <Catalogue />}
             options={{
               tabBarLabel: "CATALOGUE",
