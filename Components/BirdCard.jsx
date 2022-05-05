@@ -23,8 +23,8 @@ const BirdCard = (props) => {
           }}
         />
         <View style={styles.cardInfo}>
-          <Text style={styles.title}>{birdData.name}</Text>
-          <Text>{birdData.description}</Text>
+          <Text style={styles.title}>{birdData.birdName}</Text>
+          {/* <Text>{birdData.description}</Text> */}
         </View>
       </View>
     </View>
