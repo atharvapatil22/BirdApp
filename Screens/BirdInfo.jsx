@@ -26,6 +26,7 @@ const BirdInfo = (props) => {
           alignItems: "center",
           paddingTop: 30,
           minHeight: heightSc * 900,
+          marginBottom: 100,
         }}
       >
         <Image
@@ -62,9 +63,11 @@ const BirdInfo = (props) => {
                   "Scientific Name",
                   "Conservation Status",
                   "Incubation Period",
+                  "LifeSpan",
+                  "Diet",
                 ]}
                 style={styles.title}
-                heightArr={[60, 60, 60]}
+                heightArr={[60, 60, 60, 60, 80]}
                 textStyle={styles.labelText}
               />
               <Rows
@@ -72,6 +75,8 @@ const BirdInfo = (props) => {
                   [birdData.scientificName],
                   [birdData.conservationStatus],
                   [birdData.incubationPeriod],
+                  [birdData.lifeSpan],
+                  [birdData.diet],
                 ]}
                 flexArr={[1.5]}
                 style={styles.row}
@@ -127,5 +132,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
     color: "black",
+    textAlignVertical: "center",
+    height: "100%",
   },
 });
