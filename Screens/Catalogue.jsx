@@ -4,11 +4,34 @@ import {
   ScrollView,
   Dimensions,
   TouchableOpacity,
+  StyleSheet,
+  TextInput,
 } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import BirdCard from "../Components/BirdCard";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const Catalogue = ({ navigation }) => {
+  const [searchPhrase, setSearchPhrase] = useState("");
+  const [searchedBirdsList, setSearchedBirdsList] = useState(temp__birds);
+
+  useEffect(() => {
+    searchText();
+  }, [searchPhrase]);
+
+  searchText = () => {
+    const text = searchPhrase.toLowerCase();
+
+    if (text === "") {
+      setSearchedBirdsList(temp__birds);
+    } else {
+      const filteredList = temp__birds.filter((item) => {
+        return item.birdName.toLowerCase().includes(text);
+      });
+      setSearchedBirdsList(filteredList);
+    }
+  };
+
   return (
     <View
       style={{
@@ -17,9 +40,46 @@ const Catalogue = ({ navigation }) => {
         alignItems: "center",
       }}
     >
-      <ScrollView>
-        {temp__birds.map((bird) => (
+      <ScrollView style={{ width: "100%", paddingHorizontal: "3%" }}>
+        <TouchableOpacity style={styles.searchbox}>
+          <Ionicons
+            name="search"
+            size={25}
+            color={"grey"}
+            style={{
+              textAlignVertical: "center",
+              height: "100%",
+              marginLeft: "2%",
+            }}
+          />
+          <TextInput
+            value={searchPhrase}
+            onChangeText={(newVal) => setSearchPhrase(newVal)}
+            placeholder="Search"
+            style={{
+              flex: 1,
+              fontSize: 20,
+              textAlignVertical: "center",
+              height: "100%",
+              color: "grey",
+              marginLeft: "2%",
+            }}
+          />
+          {/* <Text
+            style={{
+              fontSize: 20,
+              textAlignVertical: "center",
+              height: "100%",
+              color: "grey",
+              marginLeft: "2%",
+            }}
+          >
+            Search
+          </Text> */}
+        </TouchableOpacity>
+        {searchedBirdsList.map((bird) => (
           <TouchableOpacity
+            key={bird.id}
             onPress={() => navigation.navigate("BirdInfo", bird)}
           >
             <BirdCard key={bird.id} birdData={bird} />
@@ -35,6 +95,18 @@ export default Catalogue;
 const { height, width } = Dimensions.get("window");
 const heightSc = height / 1000;
 const widthSc = width / 1000;
+
+const styles = StyleSheet.create({
+  searchbox: {
+    flexDirection: "row",
+    borderWidth: 1,
+    borderColor: "grey",
+    borderRadius: 8,
+    marginHorizontal: "2%",
+    height: 40,
+    marginTop: 15,
+  },
+});
 
 const temp__birds = [
   {
