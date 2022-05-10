@@ -10,11 +10,27 @@ import {
 import { MaterialIcons, Ionicons } from "react-native-vector-icons";
 import React, { useState, useEffect } from "react";
 import * as ImagePicker from "expo-image-picker";
+import axios from "axios";
 
 const Home = () => {
   const [image, setImage] = useState(null);
 
-  const camImg = async () => {};
+  const getPrediction = () => {
+    const myFormData = new FormData();
+    myFormData.append("file", image);
+
+    axios
+      .post("https://0793-103-200-75-160.in.ngrok.io/predict", myFormData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        console.log("here");
+        console.log(res);
+      })
+      .catch((err) => console.log(err.response.data));
+  };
 
   const pickImage = async (type) => {
     let result;
@@ -37,6 +53,7 @@ const Home = () => {
 
     if (!result.cancelled) {
       setImage(result.uri);
+      getPrediction();
     }
   };
 
@@ -57,7 +74,7 @@ const Home = () => {
         style={styles.button}
       >
         <Ionicons name={"camera"} color={"white"} size={50} />
-        <Text style={styles.label}>Camera</Text>
+        <Text style={styles.label}>Cameras</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => pickImage("gallery")}
