@@ -11,25 +11,31 @@ import { MaterialIcons, Ionicons } from "react-native-vector-icons";
 import React, { useState, useEffect } from "react";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
+import { birdsList } from "../birdData";
 
 const Home = () => {
   const [image, setImage] = useState(null);
 
   const getPrediction = () => {
-    const myFormData = new FormData();
-    myFormData.append("file", image);
+    // const myFormData = new FormData();
+    // myFormData.append("file", image);
 
-    axios
-      .post("https://0793-103-200-75-160.in.ngrok.io/predict", myFormData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((res) => {
-        console.log("here");
-        console.log(res);
-      })
-      .catch((err) => console.log(err.response.data));
+    // axios
+    //   .post("https://0793-103-200-75-160.in.ngrok.io/predict", myFormData, {
+    //     headers: {
+    //       "Content-Type": "multipart/form-data",
+    //     },
+    //   })
+    //   .then((res) => {
+    //     // put code snippet here
+    //     console.log(res);
+    //   })
+    //   .catch((err) => console.log(err.response.data));
+
+    // SNIPPET:
+    const prediction = "COPPERSMITH BARBET";
+    const birdObject = birdsList.filter((item) => item.birdName == prediction);
+    console.log(birdObject);
   };
 
   const pickImage = async (type) => {
@@ -74,7 +80,7 @@ const Home = () => {
         style={styles.button}
       >
         <Ionicons name={"camera"} color={"white"} size={50} />
-        <Text style={styles.label}>Cameras</Text>
+        <Text style={styles.label}>Camera</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => pickImage("gallery")}
