@@ -37,34 +37,27 @@ const Home = ({ navigation }) => {
       type: `image/jpg`,
     });
 
-    // axios
-    //   .post("https://ca16-103-200-75-174.in.ngrok.io/predict", myFormData, {
-    //     headers: {
-    //       "Content-Type": "multipart/form-data",
-    //     },
-    //   })
-    //   .then((res) => {
-    //     console.log("pred: ", res.data.prediction);
-
-    //     const prediction = res.data.prediction;
-    //     setDetectedBird(prediction);
-
-    //     // REMOVE CODE ---->
-    //     // const birdObject = birdsList.filter(
-    //     //   (item) => item.birdName == prediction
-    //     // )[0];
-    //     // console.log(birdObject);
-    //     // setOnViewInfo(() => {
-    //     //   navigation.navigate("BirdInfo", birdObject);
-    //     // });
-    //     // REMOVE CODE ----<
-    //     setShowModal(true);
-    //   })
-    //   .catch((err) => console.log("error: ", err?.response?.data));
-
-    setDetectedBird("WHITE RUMPED VULTURE");
-    setModalType("bird");
+    setModalType("detecting");
     setShowModal(true);
+    axios
+      // .post("https://ca16-103-200-75-174.in.ngrok.io/predict", myFormData, {
+      //   headers: {
+      //     "Content-Type": "multipart/form-data",
+      //   },
+      // })
+      .get("http://127.0.0.1:5000/")
+      .then((res) => {
+        // console.log("pred: ", res.data.prediction);
+        // const prediction = res.data.prediction;
+
+        // setDetectedBird(res.data);
+        setModalType("bird");
+      })
+      .catch((err) => {
+        setModalType("error");
+        console.log("Error:", err);
+        console.log("Error message: ", err?.response?.data);
+      });
   };
 
   const pickImage = async (type) => {
