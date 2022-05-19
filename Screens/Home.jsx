@@ -9,6 +9,7 @@ import {
   Alert,
   Modal,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import { MaterialIcons, Ionicons } from "react-native-vector-icons";
 import React, { useState, useEffect } from "react";
@@ -19,7 +20,7 @@ import { birdsList } from "../birdData";
 const Home = ({ navigation }) => {
   const [image, setImage] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [onViewInfo, setOnViewInfo] = useState(() => {});
+  const [modalType, setModalType] = useState("");
   const [detectedBird, setDetectedBird] = useState("");
 
   const getPrediction = () => {
@@ -62,6 +63,7 @@ const Home = ({ navigation }) => {
     //   .catch((err) => console.log("error: ", err?.response?.data));
 
     setDetectedBird("WHITE RUMPED VULTURE");
+    setModalType("bird");
     setShowModal(true);
   };
 
@@ -107,42 +109,75 @@ const Home = ({ navigation }) => {
         >
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
-              <Text style={{ fontSize: 16 }}>Detected: {detectedBird}</Text>
+              {modalType == "bird" ? (
+                <>
+                  <Text style={{ fontSize: 16 }}>Detected: {detectedBird}</Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      marginTop: 20,
+                      justifyContent: "space-between",
+                      width: "80%",
+                    }}
+                  >
+                    <Pressable
+                      style={[styles.modalButton, styles.buttonClose]}
+                      // onPress={() => setModalVisible(!modalVisible)}
+                      onPress={() => {
+                        const birdObject = birdsList.filter(
+                          (item) => item.birdName == detectedBird
+                        )[0];
+                        console.log(birdObject);
+                        navigation.navigate("BirdInfo", birdObject);
 
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginTop: 20,
-                  justifyContent: "space-between",
-                  width: "80%",
-                }}
-              >
-                <Pressable
-                  style={[styles.modalButton, styles.buttonClose]}
-                  // onPress={() => setModalVisible(!modalVisible)}
-                  onPress={() => {
-                    const birdObject = birdsList.filter(
-                      (item) => item.birdName == detectedBird
-                    )[0];
-                    console.log(birdObject);
-                    navigation.navigate("BirdInfo", birdObject);
-
-                    setModalVisible(!modalVisible);
-                    setShowModal(false);
+                        setModalVisible(!modalVisible);
+                        setShowModal(false);
+                      }}
+                    >
+                      <Text style={styles.textStyle}>View Info</Text>
+                    </Pressable>
+                    <Pressable
+                      style={[styles.modalButton, styles.buttonClose]}
+                      onPress={() => {
+                        setModalVisible(!modalVisible);
+                        setShowModal(false);
+                      }}
+                    >
+                      <Text style={styles.textStyle}>Go back</Text>
+                    </Pressable>
+                  </View>
+                </>
+              ) : modalType == "detecting" ? (
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={{ fontSize: 25, marginRight: "4%" }}>
+                    Detecting
+                  </Text>
+                  <ActivityIndicator size="large" color="blue" />
+                </View>
+              ) : modalType == "error" ? (
+                <View
+                  style={{
+                    height: "100%",
+                    flex: 1,
+                    justifyContent: "space-evenly",
                   }}
                 >
-                  <Text style={styles.textStyle}>View Info</Text>
-                </Pressable>
-                <Pressable
-                  style={[styles.modalButton, styles.buttonClose]}
-                  onPress={() => {
-                    setModalVisible(!modalVisible);
-                    setShowModal(false);
-                  }}
-                >
-                  <Text style={styles.textStyle}>Go back</Text>
-                </Pressable>
-              </View>
+                  <Text style={{ fontSize: 25, marginRight: "4%" }}>
+                    Some Error occured
+                  </Text>
+                  <Pressable
+                    style={[styles.modalButton, styles.buttonClose]}
+                    onPress={() => {
+                      setModalVisible(!modalVisible);
+                      setShowModal(false);
+                    }}
+                  >
+                    <Text style={styles.textStyle}>Close</Text>
+                  </Pressable>
+                </View>
+              ) : (
+                <></>
+              )}
             </View>
           </View>
         </Modal>
@@ -158,9 +193,9 @@ const Home = ({ navigation }) => {
         alignItems: "center",
       }}
     >
-      {true && (
+      {showModal && (
         <View style={{ position: "absolute" }}>
-          <MyModal setShowModal={setShowModal} />
+          <MyModal setShowModal={setShowModal} type={modalType} />
         </View>
       )}
 
