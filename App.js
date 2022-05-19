@@ -12,6 +12,7 @@ import Login from "./Screens/Login";
 import AuthNav from "./Navigation/AuthNav";
 import * as eva from "@eva-design/eva";
 import { ApplicationProvider } from "@ui-kitten/components";
+import HomeNav from "./Navigation/HomeNav";
 
 const BottomTab = createBottomTabNavigator();
 
@@ -47,7 +48,7 @@ export default function App() {
           >
             <BottomTab.Screen
               name="Home"
-              component={Home}
+              component={HomeNav}
               // children={(data) => <Home />}
               options={{
                 tabBarLabel: "HOME",
