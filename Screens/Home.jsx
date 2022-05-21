@@ -9,7 +9,9 @@ import {
   Alert,
   Modal,
   Pressable,
+  TextInput,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { MaterialIcons, Ionicons } from "react-native-vector-icons";
 import React, { useState, useEffect } from "react";
@@ -20,37 +22,54 @@ import { birdsList } from "../birdData";
 const Home = ({ navigation }) => {
   const [image, setImage] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState("");
-  const [detectedBird, setDetectedBird] = useState("");
+  const [modalType, setModalType] = useState("bird");
+  const [detectedBird, setDetectedBird] = useState("COPPERSMITH BARBET");
+
+  const [backendURL, setBackendURL] = useState("");
+  const [showInputbox, setShowInputbox] = useState(false);
 
   const getPrediction = () => {
     const myFormData = new FormData();
+    let imageName;
 
     // const random_num = Math.floor(Math.random() * 10000);
     // const imageName = random_num.toString() + ".jpg";
 
     // console.log("image name:", imageName);
 
+    // Get file name:
+
+    try {
+      imageName = image.split("/ImagePicker/")[1];
+    } catch (err) {
+      imageName = "random.jpg";
+    }
+
     myFormData.append("file", {
       uri: image,
-      name: "xyhjhhjjgj.jpg",
+      name: imageName,
       type: `image/jpg`,
     });
 
     setModalType("detecting");
     setShowModal(true);
-    axios
-      // .post("https://ca16-103-200-75-174.in.ngrok.io/predict", myFormData, {
-      //   headers: {
-      //     "Content-Type": "multipart/form-data",
-      //   },
-      // })
-      .get("http://127.0.0.1:5000/")
-      .then((res) => {
-        // console.log("pred: ", res.data.prediction);
-        // const prediction = res.data.prediction;
 
-        // setDetectedBird(res.data);
+    console.log(
+      "Called with backend url: ",
+      backendURL + "/predict",
+      "\n ImageName: ",
+      imageName
+    );
+    axios
+      .post(backendURL + "/predict", myFormData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        console.log("pred: ", res.data.prediction);
+        const prediction = res.data.prediction;
+        setDetectedBird(prediction);
         setModalType("bird");
       })
       .catch((err) => {
@@ -186,6 +205,7 @@ const Home = ({ navigation }) => {
         alignItems: "center",
       }}
     >
+      {/* <ScrollView style={{ width: "100%", flex: 1, alignItems: "center" }}> */}
       {showModal && (
         <View style={{ position: "absolute" }}>
           <MyModal setShowModal={setShowModal} type={modalType} />
@@ -210,6 +230,60 @@ const Home = ({ navigation }) => {
         <MaterialIcons name={"collections"} size={50} color={"white"} />
         <Text style={styles.label}>Gallery</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={{
+          backgroundColor: "blue",
+          padding: 5,
+          borderRadius: 10,
+          position: "absolute",
+          right: 10,
+          bottom: 10,
+        }}
+        onPress={() => setShowInputbox(!showInputbox)}
+      >
+        <MaterialIcons name={"settings"} size={20} color={"white"} />
+      </TouchableOpacity>
+      {showInputbox && (
+        <View style={{ width: "100%" }}>
+          <TextInput
+            style={{
+              height: 40,
+              // width: "50%"
+              marginHorizontal: "20%",
+              padding: 10,
+              margin: 12,
+              borderWidth: 1,
+              borderRadius: 10,
+            }}
+            onChangeText={(newVal) => {
+              setBackendURL(newVal);
+            }}
+            value={backendURL}
+            placeholder="set backend url"
+          />
+          <TouchableOpacity
+            style={{
+              marginHorizontal: "40%",
+              backgroundColor: "blue",
+              borderRadius: 10,
+            }}
+            onPress={() => setShowInputbox(false)}
+          >
+            <Text
+              style={{
+                color: "white",
+                fontSize: 16,
+                padding: 8,
+                textAlign: "center",
+              }}
+            >
+              Done
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
+      {/* </ScrollView> */}
     </View>
   );
 };
