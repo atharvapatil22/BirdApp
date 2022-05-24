@@ -11,7 +11,6 @@ import {
   Pressable,
   TextInput,
   ActivityIndicator,
-  ScrollView,
 } from "react-native";
 import { MaterialIcons, Ionicons } from "react-native-vector-icons";
 import React, { useState, useEffect } from "react";
@@ -44,67 +43,63 @@ const Home = ({ navigation }) => {
       });
     }
 
-    // console.log("Image selected: ", result);
+    console.log("Image selected: ", result);
 
     if (!result.cancelled) {
       setImage(result.uri);
-      setTimeout(() => {
-        getPrediction();
-      }, 1000);
-    }
-  };
 
-  const getPrediction = () => {
-    const myFormData = new FormData();
-    let imageName;
+      // GET PREDICTION FUNCTION START
+      const imageURI = result.uri;
+      const myFormData = new FormData();
+      let imageName;
 
-    // const random_num = Math.floor(Math.random() * 10000);
-    // const imageName = random_num.toString() + ".jpg";
+      try {
+        imageName = imageURI.split("/ImagePicker/")[1];
+      } catch (err) {
+        imageName = "random.jpg";
+      }
 
-    // console.log("image name:", imageName);
-
-    // Get file name:
-
-    try {
-      imageName = image.split("/ImagePicker/")[1];
-    } catch (err) {
-      imageName = "random.jpg";
-    }
-
-    myFormData.append("file", {
-      uri: image,
-      name: imageName,
-      type: `image/jpg`,
-    });
-
-    setModalType("detecting");
-    setShowModal(true);
-
-    // console.log(
-    //   "Called with backend url: ",
-    //   backendURL + "/predict",
-    //   "\n For image: ",
-    //   myFormData
-    //   // "\n ImageName: ",
-    //   // imageName
-    // );
-    axios
-      .post(backendURL + "/predict", myFormData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((res) => {
-        // console.log("pred: ", res.data.prediction);
-        const prediction = res.data.prediction;
-        setDetectedBird(prediction);
-        setModalType("bird");
-      })
-      .catch((err) => {
-        setModalType("error");
-        console.log("Error:", err);
-        console.log("Error message: ", err?.response?.data);
+      myFormData.append("file", {
+        uri: imageURI,
+        name: imageName,
+        type: `image/jpg`,
       });
+
+      if (backendURL == null || backendURL == "") {
+        Alert.alert("Backend URL NOT SET");
+        return;
+      }
+
+      console.log(
+        "Called with backend url: ",
+        backendURL + "/predict",
+        "\n For image: ",
+        myFormData
+      );
+
+      setModalType("detecting");
+      setShowModal(true);
+
+      axios
+        .post(backendURL + "/predict", myFormData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((res) => {
+          // console.log("pred: ", res.data.prediction);
+          const prediction = res.data.prediction;
+          setDetectedBird(prediction);
+          setModalType("bird");
+        })
+        .catch((err) => {
+          setModalType("error");
+          console.log("Error:", err);
+          console.log("Error message: ", err?.response?.data);
+        });
+
+      // GET PREDICTION FUNCTION END
+    }
   };
 
   // MODAL
