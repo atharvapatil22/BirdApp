@@ -22,11 +22,10 @@ import { birdsList } from "../birdData";
 const Home = ({ navigation }) => {
   const [image, setImage] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState("bird");
-  const [detectedBird, setDetectedBird] = useState("COPPERSMITH BARBET");
+  const [modalType, setModalType] = useState("");
+  const [detectedBird, setDetectedBird] = useState("");
 
-  const [backendURL, setBackendURL] = useState("");
-  const [showInputbox, setShowInputbox] = useState(false);
+  const [backendURL, setBackendURL] = useState(null);
 
   const getPrediction = () => {
     const myFormData = new FormData();
@@ -61,11 +60,15 @@ const Home = ({ navigation }) => {
       imageName
     );
     axios
-      .post(backendURL + "/predict", myFormData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
+      .post(
+        "https://c87d-2401-4900-190a-f149-6ca1-f60e-e4fb-eda3.in.ngrok.io/predict",
+        myFormData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
       .then((res) => {
         console.log("pred: ", res.data.prediction);
         const prediction = res.data.prediction;
@@ -106,17 +109,20 @@ const Home = ({ navigation }) => {
 
   // MODAL
 
-  function MyModal() {
+  function MyModal({ setShowModal, setBackendURL }) {
     const [modalVisible, setModalVisible] = useState(true);
+    const [backendURL_model, setbackendURL_model] = useState(backendURL);
     return (
       <View style={styles.centeredView}>
         <Modal
           animationType="slide"
           transparent={true}
-          visible={modalVisible}
+          visible={showModal}
           onRequestClose={() => {
-            Alert.alert("Modal has been closed.");
-            setModalVisible(!modalVisible);
+            if (modalType !== "detecting") {
+              Alert.alert("Modal has been closed.");
+              setShowModal(false);
+            }
           }}
         >
           <View style={styles.centeredView}>
@@ -134,7 +140,6 @@ const Home = ({ navigation }) => {
                   >
                     <Pressable
                       style={[styles.modalButton, styles.buttonClose]}
-                      // onPress={() => setModalVisible(!modalVisible)}
                       onPress={() => {
                         const birdObject = birdsList.filter(
                           (item) => item.birdName == detectedBird
@@ -142,7 +147,6 @@ const Home = ({ navigation }) => {
                         console.log(birdObject);
                         navigation.navigate("BirdInfo", birdObject);
 
-                        setModalVisible(!modalVisible);
                         setShowModal(false);
                       }}
                     >
@@ -151,7 +155,6 @@ const Home = ({ navigation }) => {
                     <Pressable
                       style={[styles.modalButton, styles.buttonClose]}
                       onPress={() => {
-                        setModalVisible(!modalVisible);
                         setShowModal(false);
                       }}
                     >
@@ -180,13 +183,59 @@ const Home = ({ navigation }) => {
                   <Pressable
                     style={[styles.modalButton, styles.buttonClose]}
                     onPress={() => {
-                      setModalVisible(!modalVisible);
                       setShowModal(false);
                     }}
                   >
                     <Text style={styles.textStyle}>Close</Text>
                   </Pressable>
                 </View>
+              ) : modalType == "backend-url" ? (
+                <>
+                  <Text>
+                    Current Value: {backendURL == null ? "NULL" : backendURL}
+                  </Text>
+                  <TextInput
+                    style={{
+                      height: 40,
+                      // width: "50%"
+                      marginHorizontal: "20%",
+                      marginTop: 30,
+                      padding: 10,
+                      margin: 12,
+                      borderWidth: 1,
+                      borderRadius: 10,
+                      width: "100%",
+                    }}
+                    onChangeText={(newVal) => {
+                      setbackendURL_model(newVal);
+                    }}
+                    value={backendURL_model}
+                    placeholder="set backend url"
+                  />
+                  <TouchableOpacity
+                    style={{
+                      marginHorizontal: "20%",
+                      width: "40%",
+                      backgroundColor: "blue",
+                      borderRadius: 10,
+                    }}
+                    onPress={() => {
+                      setBackendURL(backendURL_model);
+                      setShowModal(false);
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: "white",
+                        fontSize: 16,
+                        padding: 8,
+                        textAlign: "center",
+                      }}
+                    >
+                      Done
+                    </Text>
+                  </TouchableOpacity>
+                </>
               ) : (
                 <></>
               )}
@@ -205,10 +254,13 @@ const Home = ({ navigation }) => {
         alignItems: "center",
       }}
     >
-      {/* <ScrollView style={{ width: "100%", flex: 1, alignItems: "center" }}> */}
       {showModal && (
         <View style={{ position: "absolute" }}>
-          <MyModal setShowModal={setShowModal} type={modalType} />
+          <MyModal
+            setShowModal={setShowModal}
+            setBackendURL={setBackendURL}
+            type={modalType}
+          />
         </View>
       )}
 
@@ -240,50 +292,13 @@ const Home = ({ navigation }) => {
           right: 10,
           bottom: 10,
         }}
-        onPress={() => setShowInputbox(!showInputbox)}
+        onPress={() => {
+          setShowModal(true);
+          setModalType("backend-url");
+        }}
       >
         <MaterialIcons name={"settings"} size={20} color={"white"} />
       </TouchableOpacity>
-      {showInputbox && (
-        <View style={{ width: "100%" }}>
-          <TextInput
-            style={{
-              height: 40,
-              // width: "50%"
-              marginHorizontal: "20%",
-              padding: 10,
-              margin: 12,
-              borderWidth: 1,
-              borderRadius: 10,
-            }}
-            onChangeText={(newVal) => {
-              setBackendURL(newVal);
-            }}
-            value={backendURL}
-            placeholder="set backend url"
-          />
-          <TouchableOpacity
-            style={{
-              marginHorizontal: "40%",
-              backgroundColor: "blue",
-              borderRadius: 10,
-            }}
-            onPress={() => setShowInputbox(false)}
-          >
-            <Text
-              style={{
-                color: "white",
-                fontSize: 16,
-                padding: 8,
-                textAlign: "center",
-              }}
-            >
-              Done
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
-      {/* </ScrollView> */}
     </View>
   );
 };
