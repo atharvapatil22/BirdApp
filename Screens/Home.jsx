@@ -27,6 +27,33 @@ const Home = ({ navigation }) => {
 
   const [backendURL, setBackendURL] = useState(null);
 
+  const pickImage = async (type) => {
+    let result;
+    const options = {
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      aspect: [3, 4],
+      quality: 1,
+    };
+
+    if (type === "camera") {
+      result = await ImagePicker.launchCameraAsync(options);
+    } else if (type === "gallery") {
+      result = await ImagePicker.launchImageLibraryAsync({
+        ...options,
+        allowsEditing: true,
+      });
+    }
+
+    // console.log("Image selected: ", result);
+
+    if (!result.cancelled) {
+      setImage(result.uri);
+      setTimeout(() => {
+        getPrediction();
+      }, 1000);
+    }
+  };
+
   const getPrediction = () => {
     const myFormData = new FormData();
     let imageName;
@@ -53,24 +80,22 @@ const Home = ({ navigation }) => {
     setModalType("detecting");
     setShowModal(true);
 
-    console.log(
-      "Called with backend url: ",
-      backendURL + "/predict",
-      "\n ImageName: ",
-      imageName
-    );
+    // console.log(
+    //   "Called with backend url: ",
+    //   backendURL + "/predict",
+    //   "\n For image: ",
+    //   myFormData
+    //   // "\n ImageName: ",
+    //   // imageName
+    // );
     axios
-      .post(
-        "https://c87d-2401-4900-190a-f149-6ca1-f60e-e4fb-eda3.in.ngrok.io/predict",
-        myFormData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      )
+      .post(backendURL + "/predict", myFormData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
       .then((res) => {
-        console.log("pred: ", res.data.prediction);
+        // console.log("pred: ", res.data.prediction);
         const prediction = res.data.prediction;
         setDetectedBird(prediction);
         setModalType("bird");
@@ -82,33 +107,7 @@ const Home = ({ navigation }) => {
       });
   };
 
-  const pickImage = async (type) => {
-    let result;
-    const options = {
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      aspect: [3, 4],
-      quality: 1,
-    };
-
-    if (type === "camera") {
-      result = await ImagePicker.launchCameraAsync(options);
-    } else if (type === "gallery") {
-      result = await ImagePicker.launchImageLibraryAsync({
-        ...options,
-        allowsEditing: true,
-      });
-    }
-
-    console.log(result);
-
-    if (!result.cancelled) {
-      setImage(result.uri);
-      getPrediction();
-    }
-  };
-
   // MODAL
-
   function MyModal({ setShowModal, setBackendURL }) {
     const [modalVisible, setModalVisible] = useState(true);
     const [backendURL_model, setbackendURL_model] = useState(backendURL);
@@ -265,9 +264,9 @@ const Home = ({ navigation }) => {
       )}
 
       <Text style={{ fontSize: 25, marginBottom: 20 }}>Select a picture</Text>
-      {/* {image && (
+      {image && (
         <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
-      )} */}
+      )}
       <TouchableOpacity
         onPress={() => pickImage("camera")}
         style={styles.button}
