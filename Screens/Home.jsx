@@ -29,13 +29,20 @@ const Home = ({ navigation }) => {
   const pickImage = async (type) => {
     let result;
     const options = {
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       aspect: [3, 4],
       quality: 1,
     };
 
     if (type === "camera") {
-      result = await ImagePicker.launchCameraAsync(options);
+      result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.5,
+        // base64: true,
+        allowsMultipleSelection: false,
+        presentationStyle: 0,
+      });
     } else if (type === "gallery") {
       result = await ImagePicker.launchImageLibraryAsync({
         ...options,
@@ -47,59 +54,59 @@ const Home = ({ navigation }) => {
 
     if (!result.cancelled) {
       setImage(result.uri);
-
-      // GET PREDICTION FUNCTION START
-      const imageURI = result.uri;
-      const myFormData = new FormData();
-      let imageName;
-
-      try {
-        imageName = imageURI.split("/ImagePicker/")[1];
-      } catch (err) {
-        imageName = "random.jpg";
-      }
-
-      myFormData.append("file", {
-        uri: imageURI,
-        name: imageName,
-        type: `image/jpg`,
-      });
-
-      if (backendURL == null || backendURL == "") {
-        Alert.alert("Backend URL NOT SET");
-        return;
-      }
-
-      console.log(
-        "Called with backend url: ",
-        backendURL + "/predict",
-        "\n For image: ",
-        myFormData
-      );
-
-      setModalType("detecting");
-      setShowModal(true);
-
-      axios
-        .post(backendURL + "/predict", myFormData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((res) => {
-          // console.log("pred: ", res.data.prediction);
-          const prediction = res.data.prediction;
-          setDetectedBird(prediction);
-          setModalType("bird");
-        })
-        .catch((err) => {
-          setModalType("error");
-          console.log("Error:", err);
-          console.log("Error message: ", err?.response?.data);
-        });
-
-      // GET PREDICTION FUNCTION END
+      getPrediction(result.uri);
     }
+  };
+
+  const getPrediction = (imageURI) => {
+    // const imageURI = result.uri;
+    const myFormData = new FormData();
+    let imageName;
+
+    try {
+      imageName = imageURI.split("/ImagePicker/")[1];
+    } catch (err) {
+      imageName = "random.jpg";
+    }
+
+    myFormData.append("file", {
+      uri: imageURI,
+      name: imageName,
+      type: `image/jpg`,
+    });
+
+    if (backendURL == null || backendURL == "") {
+      Alert.alert("Backend URL NOT SET");
+      return;
+    }
+
+    console.log(
+      "Called with backend url: ",
+      backendURL + "/predict",
+      "\n For image: ",
+      myFormData
+    );
+
+    setModalType("detecting");
+    setShowModal(true);
+
+    axios
+      .post(backendURL + "/predict", myFormData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        // console.log("pred: ", res.data.prediction);
+        const prediction = res.data.prediction;
+        setDetectedBird(prediction);
+        setModalType("bird");
+      })
+      .catch((err) => {
+        setModalType("error");
+        console.log("Error:", err);
+        console.log("Error message: ", err?.response?.data);
+      });
   };
 
   // MODAL
@@ -259,9 +266,9 @@ const Home = ({ navigation }) => {
       )}
 
       <Text style={{ fontSize: 25, marginBottom: 20 }}>Select a picture</Text>
-      {image && (
+      {/* {image && (
         <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
-      )}
+      )} */}
       <TouchableOpacity
         onPress={() => pickImage("camera")}
         style={styles.button}
